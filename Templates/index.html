@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Health Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #0f172a, #020617);
+            color: white;
+            text-align: center;
+            margin: 0;
+        }
+
+        h1 {
+            margin-top: 30px;
+            font-size: 40px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            width: 220px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .value {
+            font-size: 28px;
+            margin-top: 10px;
+        }
+
+        .green { color: #22c55e; }
+        .orange { color: #f59e0b; }
+        .red { color: #ef4444; }
+
+        canvas {
+            max-width: 900px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🚀 System Health Dashboard</h1>
+
+<div class="container">
+    <div class="card">
+        <h2>CPU</h2>
+        <div id="cpu" class="value">--</div>
+    </div>
+
+    <div class="card">
+        <h2>Memory</h2>
+        <div id="memory" class="value">--</div>
+    </div>
+
+    <div class="card">
+        <h2>Disk</h2>
+        <div id="disk" class="value">--</div>
+    </div>
+</div>
+
+<h2>📊 Live Metrics</h2>
+<canvas id="chart"></canvas>
+
+<script>
+let chart;
+
+function getColor(value) {
+    if (value < 50) return "green";
+    if (value < 80) return "orange";
+    return "red";
+}
+
+async function fetchData() {
+    const res = await fetch('/data');
+    const data = await res.json();
+
+    const cpu = data.cpu.slice(-1)[0];
+    const memory = data.memory.slice(-1)[0];
+    const disk = data.disk.slice(-1)[0];
+
+    // Update cards with colors
+    document.getElementById('cpu').innerHTML = `<span class="${getColor(cpu)}">${cpu}%</span>`;
+    document.getElementById('memory').innerHTML = `<span class="${getColor(memory)}">${memory}%</span>`;
+    document.getElementById('disk').innerHTML = `<span class="${getColor(disk)}">${disk}%</span>`;
+
+    // Chart
+    if (!chart) {
+        const ctx = document.getElementById('chart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.timestamps,
+                datasets: [
+                    {
+                        label: 'CPU',
+                        data: data.cpu,
+                        borderColor: '#38bdf8',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Memory',
+                        data: data.memory,
+                        borderColor: '#f472b6',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Disk',
+                        data: data.disk,
+                        borderColor: '#fb923c',
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'white' }
+                    },
+                    y: {
+                        ticks: { color: 'white' }
+                    }
+                }
+            }
+        });
+    } else {
+        chart.data.labels = data.timestamps;
+        chart.data.datasets[0].data = data.cpu;
+        chart.data.datasets[1].data = data.memory;
+        chart.data.datasets[2].data = data.disk;
+        chart.update();
+    }
+}
+
+// refresh every 2 seconds
+setInterval(fetchData, 2000);
+fetchData();
+</script>
+
+</body>
+</html>
