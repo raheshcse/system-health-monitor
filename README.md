@@ -32,4 +32,49 @@ The project uses the **Isolation Forest algorithm** from Scikit-learn to identif
 
 ---
 
-## 🏗️ Architecture
+🏗️ Architecture
+
+[ System Metrics ]
+↓
+monitor.py (Data Collection)
+↓
+CSV Storage / Live API
+↓
+Flask Backend (app.py)
+↓
+REST API (/data)
+↓
+Frontend Dashboard (HTML + Chart.js)
+
+---
+
+## 🛠️ Tech Stack
+
+- **Backend:** Python, Flask
+- **Data Processing:** Pandas
+- **Machine Learning:** Scikit-learn (Isolation Forest)
+- **System Monitoring:** psutil
+- **Frontend:** HTML, CSS, Chart.js
+- **Logging:** Python logging module
+
+---
+
+## 📂 Project Structure
+
+System Health Monitor/
+│
+├── app.py # Flask backend
+├── monitor.py # System metrics collector
+├── anomaly.py # ML anomaly detection
+├── requirements.txt # Dependencies
+│
+├── templates/
+│ └── index.html # Dashboard UI
+│
+├── data/
+│ └── system_metrics.csv
+│
+├── logs/
+│ └── system.log
+
+
